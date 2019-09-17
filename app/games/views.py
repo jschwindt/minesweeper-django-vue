@@ -19,6 +19,5 @@ class GameMixin:
 class GameList(GameMixin, generics.ListCreateAPIView):
     serializer_class = GameSerializer
 
-
 class GameDetail(GameMixin, generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GameSerializer

@@ -27,23 +27,13 @@
     el: '#game',
     delimiters: ['${', '}'],
     data: {
-      status: 'playing',
+      status: 'no-game',
       level: 'beg',
       width: 9,
       height: 9,
       mines: 10,
-      board: [
-        [1, 0, 0, 0, 2, 3, 4, 0, 0],
-        [0, 1, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [2, 0, 0, 0, 0, 1, 0, 0, 0],
-        [3, 0, 0, 0, 0, 0, 1, 0, 0],
-        [4, 0, 0, 0, 0, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 1],
-      ],
-
+      board_id: null,
+      board: [],
     },
     mounted: function () {
     },
@@ -70,10 +60,23 @@
         }
       },
       newGame: function () {
-        console.log("New Game")
+        var that = this
+        axios.post('/api/games/', {
+          width: this.width,
+          height: this.height,
+          mines: this.mines
+        })
+        .then(function (response) {
+            that.board = response.data.board
+            that.game_id = response.data.id
+            that.status = 'playing'
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       },
-      cellClick: function (row, col) {
-        console.log(row, col)
+      cellClick: function (row, col, button) {
+        console.log(row, col, button)
       },
     },
   });
