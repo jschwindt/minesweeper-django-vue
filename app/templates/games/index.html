@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+<div id="game">
+    App
+</div>
+{% endblock %}
+
+{% block endofbody %}
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<script type=”text/javascript”>
+new Vue({
+  el: ‘#game,
+  delimiters: [‘${‘,’}’],
+  data: {
+    articles: [],
+    loading: false,
+    currentArticle: {},
+    message: null,
+    newArticle: { ‘article_heading’: null, ‘article_body’: null },
+  },
+  mounted: function() {
+  },
+  methods: {
+  }
+});
+</script>
+{% endblock endofbody %}
