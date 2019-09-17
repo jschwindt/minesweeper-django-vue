@@ -19,8 +19,10 @@ from django.views.generic.base import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path('players/', include('players.urls')),
     path('players/', include('django.contrib.auth.urls')),
-    path('games/',  include('games.urls')),
+    path('games/', include('games.urls')),
+    path('api/games/', include('games.api-urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
