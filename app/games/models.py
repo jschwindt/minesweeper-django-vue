@@ -22,9 +22,9 @@ class Game(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     time_taken = models.IntegerField(default=0)
-    board_rows = models.IntegerField(default=9)
-    board_cols = models.IntegerField(default=9)
-    board_bombs = models.IntegerField(default=10)
+    width = models.IntegerField(default=9)
+    height = models.IntegerField(default=9)
+    mines = models.IntegerField(default=10)
     board = JSONField(blank=True, default=dict)
 
     class Meta:
