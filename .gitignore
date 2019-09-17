@@ -1,0 +1,8 @@
+*.sqlite3
+.vscode
+.venv
+__pycache__
+media/
+log/
+tmp/
+static_root
