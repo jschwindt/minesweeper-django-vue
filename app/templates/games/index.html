@@ -1,33 +1,81 @@
 {% extends 'base.html' %}
-
+{% load static %}
 
 {% block head %}
 {% endblock head %}
 
 {% block content %}
 <div id="game">
-    App
+  <div class="row" v-if="status == 'no-game'">
+    {% include "games/_new_game_form.html" %}
+  </div>
+  <div class="row" v-if="status == 'playing'">
+    {% include "games/_board.html" %}
+  </div>
 </div>
 {% endblock %}
 
 {% block endofbody %}
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-<script type=”text/javascript”>
-new Vue({
-  el: ‘#game,
-  delimiters: [‘${‘,’}’],
-  data: {
-    articles: [],
-    loading: false,
-    currentArticle: {},
-    message: null,
-    newArticle: { ‘article_heading’: null, ‘article_body’: null },
-  },
-  mounted: function() {
-  },
-  methods: {
-  }
-});
+<script type="text/javascript">
+  axios.defaults.xsrfCookieName = 'csrftoken'
+  axios.defaults.xsrfHeaderName = "X-CSRFTOKEN"
+
+  new Vue({
+    el: '#game',
+    delimiters: ['${', '}'],
+    data: {
+      status: 'playing',
+      level: 'beg',
+      width: 9,
+      height: 9,
+      mines: 10,
+      board: [
+        [1, 0, 0, 0, 2, 3, 4, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 0, 0, 0],
+        [2, 0, 0, 0, 0, 1, 0, 0, 0],
+        [3, 0, 0, 0, 0, 0, 1, 0, 0],
+        [4, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 1],
+      ],
+
+    },
+    mounted: function () {
+    },
+    methods: {
+      changeLevel: function () {
+        switch (this.level) {
+          case 'beg':
+            this.width = 9
+            this.height = 9
+            this.mines = 10
+            break;
+
+          case 'int':
+            this.width = 16
+            this.height = 16
+            this.mines = 40
+            break;
+
+          case 'exp':
+            this.width = 30
+            this.height = 16
+            this.mines = 99
+            break;
+        }
+      },
+      newGame: function () {
+        console.log("New Game")
+      },
+      cellClick: function (row, col) {
+        console.log(row, col)
+      },
+    },
+  });
 </script>
 {% endblock endofbody %}

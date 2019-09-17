@@ -1,0 +1,14 @@
+{% load static %}
+<div class="col-md-12">
+  <div class="board">
+    <div class="board-row" v-for="(rowCells, row) in board">
+      <div class="board-cell" v-for="(cell, col) in rowCells" @click="cellClick(row, col)">
+        <img v-if="cell == 0" src="{% static "images/unknown.png" %}" />
+        <img v-if="cell == 1" src="{% static "images/flag.png" %}" />
+        <img v-if="cell == 2" src="{% static "images/mine.png" %}" />
+        <span v-if="cell == 3">2</span>
+        <img v-if="cell == 4" src="{% static "images/exploded.png" %}" />
+      </div>
+    </div>
+  </div>
+</div>
