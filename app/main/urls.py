@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('players/', include('players.urls')),
     path('players/', include('django.contrib.auth.urls')),
+    path('games/',  include('games.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
