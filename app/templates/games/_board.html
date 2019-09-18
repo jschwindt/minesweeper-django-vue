@@ -16,8 +16,9 @@
   </div>
   <p>Mines: ${ mines - flagCount }</p>
   <p>Time: ${ elapsedTime }</p>
-  <p>Status: ${ status }</p>
+  <h3 v-if="status == 'won'"><span class="label label-success">Won!</span></h3>
+  <h3 v-if="status == 'lost'"><span class="label label-danger">Lost!</span></h3>
   <button v-if="status === 'play'" class="btn btn-default" @click="pauseGame">Pause</button>
   <button v-if="status === 'pause'" class="btn btn-warning" @click="resumeGame">Resume</button>
-  <button v-if="status === 'won' || status === 'lost'" class="btn btn-primary" @click="restartApp">New Game</button>
+  <button class="btn btn-primary" @click="restartApp">New Game</button>
 </div>

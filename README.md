@@ -13,7 +13,7 @@ Demo: https://ancient-tundra-27161.herokuapp.com/
 # TODO
 
 - Missing features due to time restriction: 
-    1. Ability to reload old paused game
+    1. <s>Ability to reload old paused game</s> Done!
     2. Old games pagination and deletion
     3. API documentation
 - Create two independent applications:

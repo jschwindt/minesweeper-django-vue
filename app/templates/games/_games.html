@@ -4,18 +4,35 @@
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>Played</th>
+        <th>Created at</th>
         <th>Level</th>
         <th>Result</th>
         <th>Time</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="game in games">
-        <td>${ game.created_at }</td>
-        <td>${ game.level } (W: ${game.width}, H: ${game.height}, M: ${game.mines})</td>
-        <td>${ game.status }</td>
+        <td>${ new Date(Date.parse(game.created_at)).toLocaleString() }</td>
+        <td>
+          <span v-if="game.level === 'beg'">Beginner</span>
+          <span v-else-if="game.level === 'int'">Intermediate</span>
+          <span v-else-if="game.level === 'exp'">Expert</span>
+          <span v-else>Custom (W: ${game.width}, H: ${game.height}, M: ${game.mines})</span>
+        </td>
+        <td>
+          <span v-if="game.status === 'won'" class="label label-success">Won</span>
+          <span v-else-if="game.status === 'lost'" class="label label-danger">Lost</span>
+          <span v-else-if="game.status === 'pause'" class="label label-warning">Paused</span>
+          <span v-else-if="game.status === 'new'" class="label label-warning">Created</span>
+          <span v-else-if="game.status === 'play'" class="label label-warning">Playing</span>
+          <span v-else class="label label-default">${ game.status }</span>
+        </td>
         <td>${ game.time_taken }</td>
+        <td>
+          <button v-if="game.status === 'pause' || game.status === 'new' || game.status === 'play'"
+            class="label label-warning" @click.prevent="restoreGame(game.id)">Resume game</button>
+        </td>
       </tr>
     </tbody>
   </table>

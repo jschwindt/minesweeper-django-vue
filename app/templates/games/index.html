@@ -95,8 +95,9 @@
             that.user_board = response.data.user_board
             that.board_mines = response.data.board_mines
             that.game_id = response.data.id
-            that.status = 'ready-to-play'
+            that.status = 'new'
             that.flagCount = 0
+            that.elapsedTime = 0
         })
         .catch(function (error) {
           console.log(error)
@@ -104,6 +105,9 @@
       },
 
       updateBackend: function () {
+        if (this.status === 'new') {
+          return
+        }
         let that = this
         axios.put('/api/games/' + this.game_id + '/', {
           status: this.status,
@@ -190,8 +194,9 @@
       },
 
       cellClick: function (row, col, button) {
-        if (this.status === 'ready-to-play') {
+        if (this.status === 'new') {
           this.status = 'play'
+          this.elapsedTime = 0
           this.startTimer()
         }
         if (this.status === 'play') {
@@ -201,6 +206,7 @@
         if (this.status !== 'play' && this.status !== 'pause') {
           if (this.timer) {
             clearInterval(this.timer)
+            this.timer = null
           }
         }
         this.$forceUpdate()
@@ -208,8 +214,10 @@
       },
 
       startTimer: function () {
+        if (this.timer) {
+          return
+        }
         let that = this
-        this.elapsedTime = 0
         this.timer = setInterval(function() {
           if (that.status === 'play') {
             that.elapsedTime++
@@ -228,9 +236,43 @@
       },
 
       restartApp: function () {
+        this.updateBackend()
         this.loadGames()
         this.status = 'no-game'
       },
+
+      restoreGame: function (game_id) {
+        if (this.status !== 'no-game') {
+          this.updateBackend()
+        }
+        let that = this
+        axios.get('/api/games/' + game_id + '/')
+        .then(function (response) {
+          that.status = response.data.status
+          that.level = response.data.level
+          that.width = response.data.width
+          that.height = response.data.height
+          that.mines = response.data.mines
+          that.game_id = game_id
+          that.user_board = response.data.user_board
+          that.board_mines = response.data.board_mines
+          that.board_mines = response.data.board_mines
+          that.flagCount = 0
+          for (let r=0; r < that.height; r++) {
+            for (let c=0; c < that.width; c++) {
+              if (that.user_board[r][c] === that.cellStatusFlag) {
+                that.flagCount++
+              }
+            }
+          }
+          that.elapsedTime = response.data.time_taken
+          that.startTimer()
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+      },
+
     },
   });
 </script>
