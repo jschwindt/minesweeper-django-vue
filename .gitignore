@@ -5,4 +5,4 @@ __pycache__
 media/
 log/
 tmp/
-static_root
+staticfiles
