@@ -1,12 +1,13 @@
 {% load static %}
 <div class="col-md-12">
-  <h2>Your games:</h2>
+  <h2>Your latest games</h2>
   <table class="table table-striped">
     <thead>
       <tr>
         <th>Played</th>
         <th>Level</th>
         <th>Result</th>
+        <th>Time</th>
       </tr>
     </thead>
     <tbody>
@@ -14,6 +15,7 @@
         <td>${ game.created_at }</td>
         <td>${ game.level } (W: ${game.width}, H: ${game.height}, M: ${game.mines})</td>
         <td>${ game.status }</td>
+        <td>${ game.time_taken }</td>
       </tr>
     </tbody>
   </table>

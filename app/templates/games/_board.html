@@ -6,14 +6,18 @@
         @click.left.prevent="cellClick(row, col, 'left')"
         @click.right.prevent="cellClick(row, col, 'right')"
       >
-        <img v-if="cell == cellStatusUnknown" src="{% static "images/unknown.png" %}" />
-        <img v-else-if="cell == cellStatusFlag" src="{% static "images/flag.png" %}" />
-        <img v-else-if="cell == cellStatusMine" src="{% static "images/mine.png" %}" />
-        <img v-else-if="cell == cellStatusExploded" src="{% static "images/exploded.png" %}" />
+        <img v-if="status === 'pause' || cell === cellStatusUnknown" src="{% static "images/unknown.png" %}" />
+        <img v-else-if="cell === cellStatusFlag" src="{% static "images/flag.png" %}" />
+        <img v-else-if="cell === cellStatusMine" src="{% static "images/mine.png" %}" />
+        <img v-else-if="cell === cellStatusExploded" src="{% static "images/exploded.png" %}" />
         <span v-else><b>${cell > 0 ? cell : '&nbsp;'}</b></span>
       </div>
     </div>
   </div>
   <p>Mines: ${ mines - flagCount }</p>
+  <p>Time: ${ elapsedTime }</p>
   <p>Status: ${ status }</p>
+  <button v-if="status === 'play'" class="btn btn-default" @click="pauseGame">Pause</button>
+  <button v-if="status === 'pause'" class="btn btn-warning" @click="resumeGame">Resume</button>
+  <button v-if="status === 'won' || status === 'lost'" class="btn btn-primary" @click="restartApp">New Game</button>
 </div>

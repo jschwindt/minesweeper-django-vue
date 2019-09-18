@@ -45,18 +45,23 @@
       board_mines: [],
       flagCount: 0,
       games: [],
+      elapsedTime: 0,
     },
     mounted: function () {
-      let that = this
-      axios.get('/api/games/')
-      .then(function (response) {
-        that.games = response.data
-      })
-      .catch(function (error) {
-        console.log(error)
-      })
+      this.loadGames()
     },
     methods: {
+      loadGames: function () {
+        let that = this
+        axios.get('/api/games/')
+        .then(function (response) {
+          that.games = response.data.results
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+      },
+
       changeLevel: function () {
         switch (this.level) {
           case 'beg':
@@ -103,6 +108,7 @@
         axios.put('/api/games/' + this.game_id + '/', {
           status: this.status,
           user_board: this.user_board,
+          time_taken: this.elapsedTime,
         })
         .catch(function (error) {
           console.log(error)
@@ -186,13 +192,44 @@
       cellClick: function (row, col, button) {
         if (this.status === 'ready-to-play') {
           this.status = 'play'
+          this.startTimer()
         }
         if (this.status === 'play') {
           this.analyseClick(row, col, button)
           this.checkGameEnded()
         }
+        if (this.status !== 'play' && this.status !== 'pause') {
+          if (this.timer) {
+            clearInterval(this.timer)
+          }
+        }
         this.$forceUpdate()
         this.updateBackend()
+      },
+
+      startTimer: function () {
+        let that = this
+        this.elapsedTime = 0
+        this.timer = setInterval(function() {
+          if (that.status === 'play') {
+            that.elapsedTime++
+          }
+        }, 1000)
+      },
+
+      pauseGame: function () {
+        this.status = 'pause'
+        this.updateBackend()
+      },
+
+      resumeGame: function () {
+        this.status = 'play'
+        this.updateBackend()
+      },
+
+      restartApp: function () {
+        this.loadGames()
+        this.status = 'no-game'
       },
     },
   });

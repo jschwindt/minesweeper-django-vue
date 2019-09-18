@@ -37,5 +37,6 @@ class GameSerializer(serializers.ModelSerializer):
             instance.started_at = datetime.now()
         instance.status = status
         instance.user_board = validated_data.get('user_board')
+        instance.time_taken = validated_data.get('time_taken')
         instance.save()
         return instance
