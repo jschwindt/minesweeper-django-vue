@@ -1,0 +1,20 @@
+{% load static %}
+<div class="col-md-12">
+  <h2>Your games:</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Played</th>
+        <th>Level</th>
+        <th>Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="game in games">
+        <td>${ game.created_at }</td>
+        <td>${ game.level } (W: ${game.width}, H: ${game.height}, M: ${game.mines})</td>
+        <td>${ game.status }</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

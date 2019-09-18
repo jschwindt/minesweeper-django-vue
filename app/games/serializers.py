@@ -16,12 +16,14 @@ class GameSerializer(serializers.ModelSerializer):
         width = validated_data['width']
         height = validated_data['height']
         mines = validated_data['mines']
+        level = validated_data['level']
         board = Board(width, height, mines)
         game = Game(
             status = Game.NEW,
             player = player,
             width = width,
             height = height,
+            level = level,
             mines = mines,
             user_board = board.user_board,
             board_mines = board.board_mines,
@@ -34,5 +36,6 @@ class GameSerializer(serializers.ModelSerializer):
         if status == Game.PLAYING:
             instance.started_at = datetime.now()
         instance.status = status
+        instance.user_board = validated_data.get('user_board')
         instance.save()
         return instance

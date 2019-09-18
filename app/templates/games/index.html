@@ -6,11 +6,15 @@
 
 {% block content %}
 <div id="game">
-  <div class="row" v-if="status == 'no-game'">
+  <div class="row" v-if="status === 'no-game'">
     {% include "games/_new_game_form.html" %}
   </div>
-  <div class="row" v-if="status != 'no-game'">
+  <div class="row" v-if="status !== 'no-game'">
     {% include "games/_board.html" %}
+  </div>
+  <hr/>
+  <div class="row" v-if="games.length > 0">
+    {% include "games/_games.html" %}
   </div>
 </div>
 {% endblock %}
@@ -40,8 +44,17 @@
       user_board: [],
       board_mines: [],
       flagCount: 0,
+      games: [],
     },
     mounted: function () {
+      let that = this
+      axios.get('/api/games/')
+      .then(function (response) {
+        that.games = response.data
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
     },
     methods: {
       changeLevel: function () {
@@ -70,7 +83,8 @@
         axios.post('/api/games/', {
           width: this.width,
           height: this.height,
-          mines: this.mines
+          mines: this.mines,
+          level: this.level,
         })
         .then(function (response) {
             that.user_board = response.data.user_board
@@ -80,19 +94,19 @@
             that.flagCount = 0
         })
         .catch(function (error) {
-          console.log(error);
-        });
+          console.log(error)
+        })
       },
 
-      updateStatus: function (status) {
-        this.status = status
+      updateBackend: function () {
         let that = this
         axios.put('/api/games/' + this.game_id + '/', {
-          status: status,
+          status: this.status,
+          user_board: this.user_board,
         })
         .catch(function (error) {
-          console.log(error);
-        });
+          console.log(error)
+        })
       },
 
       gameEnd: function (row, col, result) {
@@ -104,7 +118,7 @@
             }
           }
         }
-        this.updateStatus(result)
+        this.status = result
       },
 
       checkGameEnded: function () {
@@ -117,7 +131,7 @@
           }
         }
         if (numUnclicked === 0) {
-          this.updateStatus('won')
+          this.status = 'won'
         }
       },
 
@@ -137,7 +151,7 @@
           }
           this.user_board[row][col] = numMines
 
-          if (numMines == 0) {
+          if (numMines === 0) {
             for(let r = startingRow; r <= endingRow; r++) {
               for(let c = startingCol; c <= endingCol; c++) {
                 this.clearEmptyCells(r, c)
@@ -148,8 +162,8 @@
       },
 
       analyseClick: function (row, col, button) {
-        if (button == 'right') {
-          if (this.user_board[row][col] == this.cellStatusUnknown) {
+        if (button === 'right') {
+          if (this.user_board[row][col] === this.cellStatusUnknown) {
             this.user_board[row][col] = this.cellStatusFlag
             this.flagCount++
           }
@@ -159,7 +173,7 @@
           }
         }
 
-        if (button == 'left') {
+        if (button === 'left') {
           if (this.board_mines[row][col] > 0) { // It's a mine
             this.gameEnd(row, col, 'lost')
           }
@@ -171,13 +185,14 @@
 
       cellClick: function (row, col, button) {
         if (this.status === 'ready-to-play') {
-          this.updateStatus('play')
+          this.status = 'play'
         }
-        if (this.status == 'play') {
+        if (this.status === 'play') {
           this.analyseClick(row, col, button)
           this.checkGameEnded()
-          this.$forceUpdate()
         }
+        this.$forceUpdate()
+        this.updateBackend()
       },
     },
   });
