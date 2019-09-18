@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 
 from .models import Game
@@ -7,8 +8,8 @@ from .board import Board
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'status', 'created_at', 'started_at', 'time_taken',
-                    'width', 'height', 'mines', 'board']
+        fields = ['id', 'status', 'level', 'created_at', 'started_at', 'time_taken',
+                    'width', 'height', 'mines', 'user_board', 'board_mines']
 
     def create(self, validated_data):
         player =  self.context['request'].user
@@ -22,7 +23,16 @@ class GameSerializer(serializers.ModelSerializer):
             width = width,
             height = height,
             mines = mines,
-            board = board.cells
+            user_board = board.user_board,
+            board_mines = board.board_mines,
         )
         game.save()
         return game
+
+    def update(self, instance, validated_data):
+        status = validated_data.get('status')
+        if status == Game.PLAYING:
+            instance.started_at = datetime.now()
+        instance.status = status
+        instance.save()
+        return instance

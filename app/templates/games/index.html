@@ -9,7 +9,7 @@
   <div class="row" v-if="status == 'no-game'">
     {% include "games/_new_game_form.html" %}
   </div>
-  <div class="row" v-if="status == 'playing'">
+  <div class="row" v-if="status != 'no-game'">
     {% include "games/_board.html" %}
   </div>
 </div>
@@ -27,13 +27,19 @@
     el: '#game',
     delimiters: ['${', '}'],
     data: {
+      cellStatusUnknown: -1,
+      cellStatusFlag: 10,
+      cellStatusMine: 11,
+      cellStatusExploded: 12,
       status: 'no-game',
       level: 'beg',
       width: 9,
       height: 9,
       mines: 10,
-      board_id: null,
-      board: [],
+      game_id: null,
+      user_board: [],
+      board_mines: [],
+      flagCount: 0,
     },
     mounted: function () {
     },
@@ -60,23 +66,118 @@
         }
       },
       newGame: function () {
-        var that = this
+        let that = this
         axios.post('/api/games/', {
           width: this.width,
           height: this.height,
           mines: this.mines
         })
         .then(function (response) {
-            that.board = response.data.board
+            that.user_board = response.data.user_board
+            that.board_mines = response.data.board_mines
             that.game_id = response.data.id
-            that.status = 'playing'
+            that.status = 'ready-to-play'
+            that.flagCount = 0
         })
         .catch(function (error) {
           console.log(error);
         });
       },
+
+      updateStatus: function (status) {
+        this.status = status
+        let that = this
+        axios.put('/api/games/' + this.game_id + '/', {
+          status: status,
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+
+      gameEnd: function (row, col, result) {
+        for (let r=0; r < this.height; r++) {
+          for (let c=0; c < this.width; c++) {
+            if (this.board_mines[r][c] > 0) {
+              this.user_board[r][c] = (r === row && c === col ?
+                this.cellStatusExploded : this.cellStatusMine)
+            }
+          }
+        }
+        this.updateStatus(result)
+      },
+
+      checkGameEnded: function () {
+        let numUnclicked = 0
+        for (let r=0; r < this.height; r++) {
+          for (let c=0; c < this.width; c++) {
+            if (this.user_board[r][c] === this.cellStatusUnknown) {
+              numUnclicked++
+            }
+          }
+        }
+        if (numUnclicked === 0) {
+          this.updateStatus('won')
+        }
+      },
+
+      clearEmptyCells: function (row, col) {
+        if (this.user_board[row][col] === this.cellStatusUnknown) {
+          let startingRow = row > 0 ? row - 1 : row
+          let startingCol = col > 0 ? col - 1 : col
+          let endingRow = row < this.height - 1 ? row + 1 : row
+          let endingCol = col < this.width - 1 ? col + 1 : col
+          let numMines = 0
+          for(let r = startingRow; r <= endingRow; r++) {
+            for(let c = startingCol; c <= endingCol; c++) {
+              if (this.board_mines[r][c] > 0) {
+                numMines++
+              }
+            }
+          }
+          this.user_board[row][col] = numMines
+
+          if (numMines == 0) {
+            for(let r = startingRow; r <= endingRow; r++) {
+              for(let c = startingCol; c <= endingCol; c++) {
+                this.clearEmptyCells(r, c)
+              }
+            }
+          }
+        }
+      },
+
+      analyseClick: function (row, col, button) {
+        if (button == 'right') {
+          if (this.user_board[row][col] == this.cellStatusUnknown) {
+            this.user_board[row][col] = this.cellStatusFlag
+            this.flagCount++
+          }
+          else {
+            this.user_board[row][col] = this.cellStatusUnknown
+            this.flagCount--
+          }
+        }
+
+        if (button == 'left') {
+          if (this.board_mines[row][col] > 0) { // It's a mine
+            this.gameEnd(row, col, 'lost')
+          }
+          else {
+            this.clearEmptyCells(row, col)
+          }
+        }
+      },
+
       cellClick: function (row, col, button) {
-        console.log(row, col, button)
+        if (this.status === 'ready-to-play') {
+          this.updateStatus('play')
+        }
+        if (this.status == 'play') {
+          this.analyseClick(row, col, button)
+          this.checkGameEnded()
+          this.$forceUpdate()
+        }
       },
     },
   });
